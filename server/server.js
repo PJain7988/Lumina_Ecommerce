@@ -61,6 +61,9 @@ const authLimiter = rateLimit({
 })
 app.use('/api/auth/', authLimiter)
 
+// Serve uploads statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'))
 app.use('/api/products', require('./routes/productRoutes'))

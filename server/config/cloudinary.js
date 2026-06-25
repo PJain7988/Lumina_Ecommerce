@@ -1,59 +1,68 @@
 const cloudinary = require('cloudinary').v2
 const { CloudinaryStorage } = require('multer-storage-cloudinary')
 const multer = require('multer')
+const fs = require('fs')
+const path = require('path')
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+// Ensure local uploads directory exists
+const uploadDir = path.join(__dirname, '../uploads')
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true })
+}
 
-// Product images storage
-const productStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'lumina/products',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }],
+const useCloudinary = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'Lumina_Ecommerce'
+
+if (useCloudinary) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  })
+}
+
+// Local storage fallback
+const localStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir)
   },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, uniqueSuffix + '-' + file.originalname)
+  }
 })
 
-// Avatar storage
-const avatarStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'lumina/avatars',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 200, height: 200, crop: 'fill', quality: 'auto' }],
-  },
-})
-
-// Review image storage
-const reviewStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'lumina/reviews',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 600, height: 600, crop: 'limit', quality: 'auto' }],
-  },
-})
+// Storage configurations
+const getStorage = (folder) => {
+  if (useCloudinary) {
+    return new CloudinaryStorage({
+      cloudinary,
+      params: {
+        folder: `lumina/${folder}`,
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }],
+      },
+    })
+  }
+  return localStorage
+}
 
 const uploadProduct = multer({
-  storage: productStorage,
+  storage: getStorage('products'),
   limits: { fileSize: 5 * 1024 * 1024 },
 }).array('images', 6)
 
 const uploadAvatar = multer({
-  storage: avatarStorage,
+  storage: getStorage('avatars'),
   limits: { fileSize: 2 * 1024 * 1024 },
 }).single('avatar')
 
 const uploadReview = multer({
-  storage: reviewStorage,
+  storage: getStorage('reviews'),
   limits: { fileSize: 5 * 1024 * 1024 },
 }).array('images', 3)
 
 const deleteImage = async (publicId) => {
+  if (!useCloudinary) return
   try {
     await cloudinary.uploader.destroy(publicId)
   } catch (error) {

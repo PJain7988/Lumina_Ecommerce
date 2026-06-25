@@ -16,6 +16,27 @@ const orderService = {
     return response.data
   },
 
+  // Seller operations
+  getSellerOrders: async (params) => {
+    const response = await api.get('/seller/orders', { params })
+    return response.data
+  },
+
+  updateOrderStatus: async (orderId, statusData) => {
+    const response = await api.put(`/seller/orders/${orderId}/status`, statusData)
+    return response.data
+  },
+
+  getSellerAnalytics: async () => {
+    const response = await api.get('/seller/analytics')
+    return response.data
+  },
+
+  getInventoryAlerts: async () => {
+    const response = await api.get('/seller/inventory/alerts')
+    return response.data
+  },
+
   cancelOrder: async (id, reason) => {
     const response = await api.put(`/orders/${id}/cancel`, { reason })
     return response.data

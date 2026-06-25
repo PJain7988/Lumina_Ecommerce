@@ -171,7 +171,12 @@ exports.getRelatedProducts = asyncHandler(async (req, res) => {
 exports.createProduct = asyncHandler(async (req, res) => {
   const { name, description, price, originalPrice, category, brand, stock, sku, specifications } = req.body
 
-  const images = req.files?.map((f) => ({ public_id: f.public_id || f.filename, url: f.path })) || []
+  const images = req.files?.map((f) => {
+    // If it's a local file, build full URL, else use Cloudinary path
+    const isLocal = f.path && !f.path.startsWith('http')
+    const url = isLocal ? `${req.protocol}://${req.get('host')}/uploads/${f.filename}` : f.path
+    return { public_id: f.public_id || f.filename, url }
+  }) || []
   const specs = specifications ? JSON.parse(specifications) : []
 
   const product = await Product.create({
@@ -198,7 +203,11 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 
   const updates = { ...req.body }
   if (req.files?.length) {
-    updates.images = req.files.map((f) => ({ public_id: f.public_id || f.filename, url: f.path }))
+    updates.images = req.files.map((f) => {
+      const isLocal = f.path && !f.path.startsWith('http')
+      const url = isLocal ? `${req.protocol}://${req.get('host')}/uploads/${f.filename}` : f.path
+      return { public_id: f.public_id || f.filename, url }
+    })
   }
   if (updates.specifications) updates.specifications = JSON.parse(updates.specifications)
 
