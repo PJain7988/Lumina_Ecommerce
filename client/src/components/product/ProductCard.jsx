@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
 import { FiHeart, FiShoppingCart, FiEye, FiStar } from 'react-icons/fi'
@@ -10,6 +10,7 @@ import { setQuickViewProduct } from '../../redux/slices/uiSlice'
 export default function ProductCard({ product }) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const isWishlisted = useSelector(selectIsWishlisted(product._id))
 
   const discount = product.originalPrice
@@ -19,6 +20,12 @@ export default function ProductCard({ product }) {
   const handleAddToCart = (e) => {
     e.preventDefault()
     dispatch(addToCart({ product, quantity: 1 }))
+  }
+
+  const handleBuyNow = (e) => {
+    e.preventDefault()
+    dispatch(addToCart({ product, quantity: 1 }))
+    navigate('/checkout')
   }
 
   const handleWishlist = (e) => {
@@ -80,15 +87,30 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* Add to cart overlay */}
-          <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <button
-              onClick={handleAddToCart}
-              disabled={product.stock === 0}
-              className="w-full py-3 bg-primary text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              <FiShoppingCart className="text-sm" />
-              {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </button>
+          <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex">
+            {product.stock === 0 ? (
+              <button
+                disabled
+                className="w-full py-3 bg-gray-400 text-white text-sm font-medium flex items-center justify-center cursor-not-allowed"
+              >
+                Out of Stock
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 py-3 bg-brand text-white text-sm font-medium hover:bg-gray-800 transition-colors border-r border-white/20"
+                >
+                  Buy Now
+                </button>
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 py-3 bg-primary text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary-700 transition-colors"
+                >
+                  <FiShoppingCart className="text-sm" /> Cart
+                </button>
+              </>
+            )}
           </div>
         </div>
 

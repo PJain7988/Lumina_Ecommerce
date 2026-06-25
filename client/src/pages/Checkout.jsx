@@ -76,11 +76,11 @@ export default function Checkout() {
         coupon,
       }
 
-      const { data } = await orderService.createOrder(orderData)
+      const responseData = await orderService.createOrder(orderData)
 
       if (paymentMethod === 'razorpay') {
         // Razorpay integration
-        const { data: paymentData } = await orderService.createPaymentOrder({ amount: total, orderId: data.order._id })
+        const paymentData = await orderService.createPaymentOrder({ amount: total, orderId: responseData.order._id })
         const options = {
           key: import.meta.env.VITE_RAZORPAY_KEY,
           amount: paymentData.amount,
@@ -89,9 +89,9 @@ export default function Checkout() {
           description: 'Order Payment',
           order_id: paymentData.razorpayOrderId,
           handler: async (response) => {
-            await orderService.verifyPayment({ ...response, orderId: data.order._id })
+            await orderService.verifyPayment({ ...response, orderId: responseData.order._id })
             dispatch(clearCart())
-            navigate(`/order-success/${data.order._id}`)
+            navigate(`/order-success/${responseData.order._id}`)
           },
           prefill: { name: user?.name, email: user?.email, contact: shippingData?.phone },
           theme: { color: '#2563EB' },
@@ -100,10 +100,11 @@ export default function Checkout() {
         rzp.open()
       } else {
         dispatch(clearCart())
-        navigate(`/order-success/${data.order._id}`)
+        navigate(`/order-success/${responseData.order._id}`)
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Order placement failed')
+      console.error('Checkout error:', err)
+      toast.error(err.response?.data?.message || err.message || 'Order placement failed')
     } finally {
       setLoading(false)
     }

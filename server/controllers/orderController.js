@@ -6,6 +6,7 @@ const { sendEmail, emailTemplates } = require('../services/emailService')
 
 // @POST /api/orders
 exports.createOrder = asyncHandler(async (req, res) => {
+  console.log('Incoming order body:', JSON.stringify(req.body, null, 2))
   const { items, shippingAddress, paymentMethod, subtotal, discount, shipping, tax, total, coupon } = req.body
 
   if (!items || items.length === 0) throw new AppError('No items in order', 400)

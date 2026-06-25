@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -15,6 +15,7 @@ import productService from '../services/productService'
 
 export default function ProductDetail() {
   const { slug } = useParams()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const { currentProduct: product, loading } = useSelector((state) => state.product)
   const isWishlisted = useSelector(selectIsWishlisted(product?._id))
@@ -170,6 +171,16 @@ export default function ProductDetail() {
 
           {/* CTA */}
           <div className="flex gap-3 mb-6">
+            <button
+              onClick={() => {
+                dispatch(addToCart({ product, quantity }))
+                navigate('/checkout')
+              }}
+              disabled={product.stock === 0}
+              className="bg-brand text-white flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
+              Buy Now
+            </button>
             <button
               onClick={() => dispatch(addToCart({ product, quantity }))}
               disabled={product.stock === 0}

@@ -32,7 +32,9 @@ const authService = {
   },
 
   uploadAvatar: async (formData) => {
-    const response = await api.post('/auth/avatar', formData)
+    const response = await api.post('/auth/avatar', formData, {
+      headers: { 'Content-Type': undefined }
+    })
     return response.data
   },
 

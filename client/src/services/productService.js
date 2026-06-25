@@ -48,12 +48,16 @@ const productService = {
 
   // Seller operations
   createProduct: async (formData) => {
-    const response = await api.post('/products', formData)
+    const response = await api.post('/products', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
     return response.data
   },
 
   updateProduct: async (id, formData) => {
-    const response = await api.put(`/products/${id}`, formData)
+    const response = await api.put(`/products/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
     return response.data
   },
 
@@ -69,7 +73,9 @@ const productService = {
 
   // Reviews
   addReview: async (productId, reviewData) => {
-    const response = await api.post(`/products/${productId}/reviews`, reviewData)
+    const response = await api.post(`/products/${productId}/reviews`, reviewData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
     return response.data
   },
 
