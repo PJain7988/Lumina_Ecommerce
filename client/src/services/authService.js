@@ -26,15 +26,13 @@ const authService = {
     return response.data
   },
 
-  updateProfile: async (data) => {
-    const response = await api.put('/auth/profile', data)
+  updateProfile: async (formData) => {
+    const response = await api.put('/auth/updatedetails', formData)
     return response.data
   },
 
   uploadAvatar: async (formData) => {
-    const response = await api.post('/auth/avatar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    const response = await api.post('/auth/avatar', formData)
     return response.data
   },
 

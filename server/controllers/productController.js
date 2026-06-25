@@ -181,6 +181,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
     images, specifications: specs,
     seller: req.user._id,
     isNew: true,
+    status: 'active',
   })
 
   res.status(201).json({ success: true, product })

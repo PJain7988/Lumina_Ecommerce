@@ -17,10 +17,12 @@ require('dotenv').config()
 const app = express()
 const server = http.createServer(app)
 
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : ['http://localhost:3000']
+
 // Socket.io
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
   },
 })
@@ -31,7 +33,7 @@ app.set('io', io)
 // Middlewares
 app.use(helmet())
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: allowedOrigins,
   credentials: true,
 }))
 app.use(express.json({ limit: '10mb' }))
