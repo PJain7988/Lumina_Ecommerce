@@ -155,7 +155,13 @@ exports.getSellerOrders = asyncHandler(async (req, res) => {
 
 // @PUT /api/seller/orders/:id/status
 exports.updateOrderStatus = asyncHandler(async (req, res) => {
-  const { status, trackingNumber, trackingUrl } = req.body
+  let { status, trackingNumber, trackingUrl } = req.body
+  
+  // Defensively handle if status is an object
+  if (status && typeof status === 'object') {
+    status = status.status
+  }
+
   const order = await Order.findById(req.params.id)
   if (!order) throw new AppError('Order not found', 404)
 
@@ -196,4 +202,31 @@ exports.getAllOrders = asyncHandler(async (req, res) => {
 
   const total = await Order.countDocuments(query)
   res.json({ success: true, orders, pagination: { page: Number(page), total, totalPages: Math.ceil(total / Number(limit)) } })
+})
+
+// @GET /api/orders/dashboard-stats
+exports.getCustomerDashboardStats = asyncHandler(async (req, res) => {
+  const [totalOrders, recentOrders] = await Promise.all([
+    Order.countDocuments({ user: req.user._id }),
+    Order.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .populate('items.product', 'name images')
+  ])
+
+  // Get total reviews given by user across all products
+  const productsWithReviews = await Product.find({ 'reviews.user': req.user._id })
+  let reviewsGiven = 0
+  productsWithReviews.forEach(p => {
+    reviewsGiven += p.reviews.filter(r => r.user.toString() === req.user._id.toString()).length
+  })
+
+  res.json({
+    success: true,
+    stats: {
+      totalOrders,
+      reviewsGiven,
+      recentOrders
+    }
+  })
 })

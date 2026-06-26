@@ -56,7 +56,7 @@ export default function OrderDetail() {
           {order.items?.map((item, i) => (
             <div key={i} className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-gray-50 overflow-hidden">
-                <img src={item.product?.images?.[0] || 'https://picsum.photos/seed/p1/100/100'} alt="" className="w-full h-full object-cover" />
+                <img src={item.image || item.product?.images?.[0]?.url || 'https://picsum.photos/seed/p1/100/100'} alt="" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-brand">{item.product?.name || 'Product'}</p>

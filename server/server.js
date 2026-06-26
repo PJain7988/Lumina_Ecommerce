@@ -31,7 +31,9 @@ const io = new Server(server, {
 app.set('io', io)
 
 // Middlewares
-app.use(helmet())
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}))
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,

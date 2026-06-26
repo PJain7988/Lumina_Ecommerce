@@ -41,8 +41,12 @@ export default function Orders() {
         <div className="space-y-3">
           {orders.map((order) => (
             <Link key={order._id} to={`/dashboard/orders/${order._id}`} className="card p-4 flex items-center gap-4 hover:shadow-card-hover transition-shadow">
-              <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center">
-                <FiPackage className="text-gray-400" />
+              <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden">
+                {order.items?.[0]?.image ? (
+                  <img src={order.items[0].image} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <FiPackage className="text-gray-400" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-brand text-sm">Order #{order._id.slice(-8).toUpperCase()}</p>

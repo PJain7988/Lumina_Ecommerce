@@ -16,6 +16,11 @@ const orderService = {
     return response.data
   },
 
+  getCustomerDashboardStats: async () => {
+    const response = await api.get('/orders/dashboard-stats')
+    return response.data
+  },
+
   // Seller operations
   getSellerOrders: async (params) => {
     const response = await api.get('/seller/orders', { params })
